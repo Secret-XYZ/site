@@ -3,105 +3,277 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Хакерский Кодер от Куки 🐾</title>
+    <title>DarkGo | Elite Proxy Framework</title>
     <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        /* Анимированный фон: Синее северное сияние */
         body {
-            background-color: #1e1e1e;
-            color: #cfcfcf;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding: 40px;
-            text-align: center;
+            background: radial-gradient(circle at 20% 30%, #0d2b45 0%, #07111e 50%, #020509 100%);
+            color: #e2e8f0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 15px;
+            overflow-x: hidden;
+            position: relative;
         }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: #2d2d2d;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+
+        /* Эффект переливающегося сияния */
+        body::before, body::after {
+            content: '';
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 82, 212, 0.4) 0%, rgba(67, 198, 172, 0.1) 60%, transparent 100%);
+            filter: blur(80px);
+            z-index: 0;
+            animation: aurora 12s infinite alternate ease-in-out;
         }
-        h1 {
-            color: #4caf50;
+        body::after {
+            background: radial-gradient(circle, rgba(9, 132, 227, 0.3) 0%, rgba(0, 242, 254, 0.05) 60%, transparent 100%);
+            animation: aurora 18s infinite alternate-reverse ease-in-out;
+            right: 10%;
+            top: 10%;
         }
-        textarea {
+
+        @keyframes aurora {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(80px, 50px) scale(1.2); }
+            100% { transform: translate(-40px, 90px) scale(0.9); }
+        }
+
+        /* Главный контейнер — Жидкое стекло */
+        .wrapper {
+            position: relative;
+            z-index: 10;
             width: 100%;
-            height: 100px;
-            background: #111;
-            color: #00ff00;
-            border: 1px solid #444;
-            border-radius: 6px;
-            padding: 10px;
-            font-family: monospace;
-            box-sizing: border-box;
-            resize: none;
+            max-width: 650px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4),
+                        inset 0 1px 2px rgba(255, 255, 255, 0.1);
         }
-        .buttons {
-            margin: 20px 0;
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
         }
-        button {
-            background: #4caf50;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            margin: 0 10px;
+
+        header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+        }
+
+        header p {
+            font-size: 13px;
+            color: #708090;
+            margin-top: 5px;
+        }
+
+        /* Список прокси карточек */
+        .proxy-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* Карточка прокси */
+        .proxy-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .proxy-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(0, 242, 254, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 242, 254, 0.1);
+        }
+
+        .proxy-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .flag {
+            font-size: 28px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .details h3 {
             font-size: 16px;
-            border-radius: 6px;
+            color: #f8fafc;
+            font-weight: 600;
+        }
+
+        .details p {
+            font-size: 12px;
+            color: #94a3b8;
+            font-family: monospace;
+            margin-top: 3px;
+            max-width: 250px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Сет кнопок */
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            border: none;
+            outline: none;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 10px;
             cursor: pointer;
-            transition: 0.2s;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
-        button:hover {
-            background: #45a049;
+
+        /* Кнопка Подключить */
+        .btn-connect {
+            background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 114, 255, 0.3);
         }
-        button.decode {
-            background: #008cba;
+
+        .btn-connect:hover {
+            box-shadow: 0 6px 20px rgba(0, 114, 255, 0.5);
+            transform: scale(1.03);
         }
-        button.decode:hover {
-            background: #007bc4;
+
+        /* Кнопка Скопировать */
+        .btn-copy {
+            background: rgba(255, 255, 255, 0.06);
+            color: #cbd5e1;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .result-box {
-            margin-top: 20px;
-            text-align: left;
+
+        .btn-copy:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: white;
+        }
+
+        .btn-copy.copied {
+            background: #23a55a;
+            color: white;
+            border-color: #23a55a;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>Тайный шифратор Base64 🐱</h1>
-    <p>Введи текст для кодирования или Base64-строку для расшифровки:</p>
+<div class="wrapper">
+    <header>
+        <h1>Elite Proxy Nodes</h1>
+        <p>Premium MTProto & Shadowsocks Nodes // DarkGo HQ</p>
+    </header>
 
-    <textarea id="inputData" placeholder="Пиши сюда..."></textarea>
+    <div class="proxy-list">
+        <div class="proxy-card">
+            <div class="proxy-info">
+                <div class="flag">🇺🇸</div>
+                <div class="details">
+                    <h3>US-Premium Node 1</h3>
+                    <p>us1.shadowsocks.wtf</p>
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn btn-copy" onclick="copyProxy('tg://proxy?server=us1.shadowsocks.wtf&port=443&secret=58bed0d2f51b9aed674ef6e11f32c4a0', this)">Копировать</button>
+                <a href="tg://proxy?server=us1.shadowsocks.wtf&port=443&secret=58bed0d2f51b9aed674ef6e11f32c4a0" class="btn btn-connect">Запуск</a>
+            </div>
+        </div>
 
-    <div class="buttons">
-        <button onclick="encodeText()">Закодировать</button>
-        <button class="decode" onclick="decodeText()">Декодировать</button>
-    </div>
+        <div class="proxy-card">
+            <div class="proxy-info">
+                <div class="flag">🇺🇸</div>
+                <div class="details">
+                    <h3>US-Premium Node 2</h3>
+                    <p>us2.shadowsocks.wtf</p>
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn btn-copy" onclick="copyProxy('tg://proxy?server=us2.shadowsocks.wtf&port=443&secret=e432f13712e802e52d0efce03ebd11ae', this)">Копировать</button>
+                <a href="tg://proxy?server=us2.shadowsocks.wtf&port=443&secret=e432f13712e802e52d0efce03ebd11ae" class="btn btn-connect">Запуск</a>
+            </div>
+        </div>
 
-    <div class="result-box">
-        <h3>Результат:</h3>
-        <textarea id="outputData" readonly placeholder="Тут появится результат..."></textarea>
+        <div class="proxy-card">
+            <div class="proxy-info">
+                <div class="flag">🇺🇸</div>
+                <div class="details">
+                    <h3>US-Secure IP Node 3</h3>
+                    <p>82.38.63.155</p>
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn btn-copy" onclick="copyProxy('tg://proxy?server=82.38.63.155&port=8443&secret=ee176ae19c3652267d3ca18fcaf4986fb17777772e676f6f676c652e636f6d', this)">Копировать</button>
+                <a href="tg://proxy?server=82.38.63.155&port=8443&secret=ee176ae19c3652267d3ca18fcaf4986fb17777772e676f6f676c652e636f6d" class="btn btn-connect">Запуск</a>
+            </div>
+        </div>
+
+        <div class="proxy-card">
+            <div class="proxy-info">
+                <div class="flag">🇺🇸</div>
+                <div class="details">
+                    <h3>US-Cloud Infrastructure 4</h3>
+                    <p>207.246.89.91</p>
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn btn-copy" onclick="copyProxy('tg://proxy?server=207.246.89.91&port=443&secret=5975296f739ac1018579428daabbcf2a', this)">Копировать</button>
+                <a href="tg://proxy?server=207.246.89.91&port=443&secret=5975296f739ac1018579428daabbcf2a" class="btn btn-connect">Запуск</a>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
-    function encodeText() {
-        const input = document.getElementById('inputData').value;
-        try {
-            const code = btoa(unescape(encodeURIComponent(input)));
-            document.getElementById('outputData').value = code;
-        } catch (e) {
-            document.getElementById('outputData').value = "Ошибка при кодировании!";
-        }
-    }
+    // Скрипт копирования в буфер
+    function copyProxy(text, button) {
+        navigator.clipboard.writeText(text).then(() => {
+            const originalText = button.innerText;
+            button.innerText = 'Скопировано!';
+            button.classList.add('copied');
 
-    function decodeText() {
-        const input = document.getElementById('inputData').value.trim();
-        try {
-            const text = decodeURIComponent(escape(atob(input)));
-            document.getElementById('outputData').value = text;
-        } catch (e) {
-            document.getElementById('outputData').value = "Ошибка: Невалидная строка Base64!";
-        }
+            setTimeout(() => {
+                button.innerText = originalText;
+                button.classList.remove('copied');
+            }, 1500);
+        }).catch(err => {
+            console.error('Не удалось скопировать: ', err);
+        });
     }
 </script>
 
