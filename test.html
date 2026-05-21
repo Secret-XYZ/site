@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DarkGo | Secret Chat 🤫</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: #18191c;
+            color: #dbdee1;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .chat-container {
+            width: 100%;
+            max-width: 500px;
+            background: #2b2d31;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+        }
+        .chat-header {
+            background: #1e1f22;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #3f4147;
+        }
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background: #23a55a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            margin-right: 15px;
+        }
+        .status-info h2 { font-size: 16px; color: #f2f3f5; }
+        .status-info p { font-size: 12px; color: #23a55a; }
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background: #313338;
+        }
+        .msg { max-width: 80%; padding: 10px 14px; border-radius: 8px; font-size: 15px; line-height: 1.4; }
+        .msg.incoming { background: #2b2d31; align-self: flex-start; color: #dbdee1; border-bottom-left-radius: 2px; }
+        .msg.outgoing { background: #5865f2; align-self: flex-end; color: white; border-bottom-right-radius: 2px; }
+        .system-link {
+            background: #2e3035;
+            border: 1px dashed #5865f2;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #949ba4;
+            word-break: break-all;
+            text-align: center;
+            cursor: pointer;
+        }
+        .chat-input-area {
+            background: #2b2d31;
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+        }
+        input[type="text"] {
+            flex: 1;
+            background: #383a40;
+            border: none;
+            outline: none;
+            padding: 12px;
+            border-radius: 8px;
+            color: #dbdee1;
+            font-size: 14px;
+        }
+        button {
+            background: #5865f2;
+            color: white;
+            border: none;
+            padding: 0 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover { background: #4752c4; }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">
+        <div class="avatar">🔒</div>
+        <div class="status-info">
+            <h2>Secret Agent Chat</h2>
+            <p>End-to-End Encrypted (Base64)</p>
+        </div>
+    </div>
+
+    <div class="chat-messages" id="chatBox">
+        <div class="msg incoming">Добро пожаловать в защищенный чат. Напиши сообщение снизу, чтобы сгенерировать шпионскую ссылку для друга!</div>
+    </div>
+
+    <div class="chat-input-area">
+        <input type="text" id="messageInput" placeholder="Введите секретное сообщение..." onkeypress="handleKey(event)">
+        <button onclick="generateSecretLink()">Шифр</button>
+    </div>
+</div>
+
+<script>
+    // Как только страница загрузилась, проверяем, есть ли зашифрованный текст в URL
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const encodedMessage = urlParams.get('code');
+
+        if (encodedMessage) {
+            try {
+                // Декодируем сообщение из Base64 с поддержкой кириллицы
+                const decodedMessage = decodeURIComponent(escape(atob(encodedMessage)));
+                
+                // Добавляем в чат как входящее сообщение
+                const chatBox = document.getElementById('chatBox');
+                chatBox.innerHTML += `<div class="msg incoming"><b>Перехвачено сообщение:</b><br>${decodedMessage}</div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            } catch (e) {
+                console.error("Ошибка декодирования", e);
+            }
+        }
+    };
+
+    function generateSecretLink() {
+        const input = document.getElementById('messageInput');
+        const text = input.value.trim();
+        if (!text) return;
+
+        try {
+            // Кодируем текст в Base64 без поломки русского языка
+            const encoded = btoa(unescape(encodeURIComponent(text)));
+            
+            // Получаем текущий URL без старых параметров
+            const baseUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            const finalLink = `${baseUrl}?code=${encoded}`;
+
+            // Выводим в чат твое отправленное сообщение и ссылку
+            const chatBox = document.getElementById('chatBox');
+            chatBox.innerHTML += `<div class="msg outgoing">${text}</div>`;
+            chatBox.innerHTML += `<div class="system-link" onclick="navigator.clipboard.writeText('${finalLink}'); alert('Ссылка скопирована!');">🔗 Ссылка создана! Нажми сюда, чтобы скопировать её и отправить другу.</div>`;
+            
+            // Очищаем инпут и скроллим вниз
+            input.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+        } catch (e) {
+            alert("Что-то пошло не так при шифровании.");
+        }
+    }
+
+    function handleKey(e) {
+        if (e.key === 'Enter') {
+            generateSecretLink();
+        }
+    }
+</script>
+
+</body>
+</html>
