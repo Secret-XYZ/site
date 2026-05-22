@@ -1,415 +1,490 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MTProto — Portals Edition</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MTProto Proxy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
 
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+:root{
+  --bg:#212020;
+  --card-bg:rgba(58,58,58,0.4);
+  --card-border:rgba(255,255,255,0.07);
+  --card-hover-border:rgba(255,255,255,0.14);
+  --text-primary:#f0f1f5;
+  --text-muted:#6b7280;
+  --accent:#3b82f6;
+  --accent2:#60a5fa;
+  --radius:20px;
+}
 
-        html, body {
-            overflow-x: hidden;
-            width: 100%;
-            height: 100%;
-            background: #06060c;
-            font-family: 'Inter', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
+html,body{
+  min-height:100vh;
+  background:var(--bg);
+  font-family:'DM Sans',sans-serif;
+  color:var(--text-primary);
+  overflow-x:hidden;
+}
 
-        body {
-            color: #f3f4f6;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: center;
-            padding: 40px 16px 140px 16px;
-            position: relative;
-            min-height: 100vh;
-        }
+/* subtle bg glow */
+body::before{
+  content:'';
+  position:fixed;
+  top:-20%;left:-10%;
+  width:60%;height:60%;
+  background:radial-gradient(circle,rgba(59,130,246,0.08) 0%,transparent 70%);
+  pointer-events:none;
+  z-index:0;
+}
+body::after{
+  content:'';
+  position:fixed;
+  bottom:-10%;right:-10%;
+  width:50%;height:50%;
+  background:radial-gradient(circle,rgba(96,165,250,0.06) 0%,transparent 70%);
+  pointer-events:none;
+  z-index:0;
+}
 
-        /* Задний неоновый свет из Portals */
-        body::before {
-            content: '';
-            position: fixed;
-            top: -15%;
-            left: -15%;
-            width: 130%;
-            height: 130%;
-            background: radial-gradient(circle at 50% 35%, rgba(31, 64, 213, 0.22) 0%, rgba(99, 32, 238, 0.05) 40%, transparent 70%);
-            filter: blur(120px);
-            z-index: 0;
-            pointer-events: none;
-            animation: portalsAmbient 16s infinite alternate ease-in-out;
-        }
+.page{
+  position:relative;
+  z-index:1;
+  max-width:1400px;
+  margin:0 auto;
+  padding:40px 20px 140px;
+  width:100%;
+}
 
-        @keyframes portalsAmbient {
-            0% { transform: translate(-2%, -2%) scale(1); }
-            100% { transform: translate(2%, 2%) scale(1.05); }
-        }
+/* Header */
+.header{
+  margin-bottom:36px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
 
-        .container {
-            position: relative;
-            z-index: 10;
-            width: 100%;
-            max-width: 950px;
-        }
+.header-top{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
 
-        header {
-            text-align: center;
-            margin-bottom: 35px;
-        }
+.logo-icon{
+  width:36px;height:36px;
+  background:linear-gradient(135deg,#1d4ed8,#3b82f6);
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;
+  box-shadow:0 4px 14px rgba(59,130,246,0.3);
+}
 
-        header h1 {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 32px;
-            font-weight: 700;
-            color: #ffffff;
-            letter-spacing: -0.5px;
-        }
+.header h1{
+  font-family:'Unbounded',sans-serif;
+  font-size:22px;
+  font-weight:700;
+  letter-spacing:-0.5px;
+  color:#fff;
+}
 
-        header p {
-            font-size: 14px;
-            color: #4b5563;
-            margin-top: 6px;
-        }
+.header p{
+  font-size:13px;
+  color:var(--text-muted);
+  padding-left:46px;
+}
 
-        /* МОЩНАЯ СЕТКА ИЗ ОДИНОЧНЫХ СТЭКЛЯННЫХ БЛОКОВ */
-        .proxy-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 16px;
-            width: 100%;
-        }
+/* Filters row */
+.filters{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:20px;
+  flex-wrap:wrap;
+}
 
-        /* ТО САМОЕ ЖИДКОЕ СТЕКЛО (PORTALS STYLE) */
-        .proxy-card {
-            background: rgba(18, 18, 29, 0.45);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 24px;
-            padding: 24px 18px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            /* Внутреннее свечение создающее эффект объема стекла */
-            box-shadow:
-                0 20px 40px rgba(0, 0, 0, 0.5),
-                inset 0 1px 0px rgba(255, 255, 255, 0.12),
-                inset 0 -1px 0px rgba(255, 255, 255, 0.05);
-            transition: border-color 0.4s ease, transform 0.4s ease, box-shadow 0.4s ease;
-        }
+.filter-pill{
+  display:flex;align-items:center;gap:6px;
+  background:var(--card-bg);
+  border:1px solid var(--card-border);
+  border-radius:50px;
+  padding:7px 14px;
+  font-size:13px;
+  color:var(--text-muted);
+  cursor:default;
+  user-select:none;
+}
 
-        /* Легкий неоновый отсвет сверху внутри карты */
-        .proxy-card::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 25%;
-            width: 50%;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.4), transparent);
-            filter: blur(1px);
-        }
+.filter-pill.active{
+  border-color:rgba(59,130,246,0.4);
+  color:var(--accent2);
+  background:rgba(59,130,246,0.08);
+}
 
-        .proxy-card:hover {
-            border-color: rgba(59, 130, 246, 0.4);
-            transform: translateY(-5px);
-            box-shadow:
-                0 25px 45px rgba(31, 64, 213, 0.15),
-                inset 0 1px 0px rgba(255, 255, 255, 0.2);
-        }
+.filter-pill svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
 
-        /* Круглая рамка флага */
-        .flag-box {
-            position: relative;
-            width: 56px;
-            height: 56px;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+.count-badge{
+  background:rgba(59,130,246,0.18);
+  color:var(--accent2);
+  font-size:11px;font-weight:600;
+  padding:2px 7px;
+  border-radius:20px;
+}
 
-        /* Свечение за флагом */
-        .flag-box::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: rgba(59, 130, 246, 0.25);
-            filter: blur(12px);
-            border-radius: 50%;
-            z-index: -1;
-        }
+/* Grid */
+.proxy-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(175px,1fr));
+  gap:12px;
+  min-height:0;
+  width:100%;
+}
 
-        .flag-icon {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-        }
+/* Card */
+.proxy-card{
+  background:var(--card-bg);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:var(--radius);
+  padding:18px 14px 16px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  transition:border-color .25s,transform .25s,box-shadow .25s;
+  cursor:default;
+  position:relative;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.06);
+}
 
-        .address {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 15px;
-            color: #ffffff;
-            font-weight: 600;
-            width: 100%;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            margin-bottom: 22px;
-            letter-spacing: -0.2px;
-        }
+.proxy-card:hover{
+  border-color:var(--card-hover-border);
+  transform:translateY(-3px);
+  box-shadow:0 16px 32px rgba(0,0,0,0.35);
+}
 
-        .actions {
-            display: flex;
-            flex-direction: column;
-            gap: 9px;
-            width: 100%;
-        }
+/* Flag circle */
+.flag-wrap{
+  width:60px;height:60px;
+  border-radius:16px;
+  background:#1e2130;
+  border:1px solid rgba(255,255,255,0.06);
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:12px;
+  overflow:hidden;
+  flex-shrink:0;
+}
 
-        /* КНОПКИ С УЛЬТРАПЛАВНЫМ ЭФФЕКТОМ ЗАЛИВКИ ЖИДКОСТИ */
-        .btn {
-            position: relative;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            outline: none;
-            background: rgba(255, 255, 255, 0.03);
-            color: #a1a1aa;
-            padding: 12px 0;
-            font-size: 12.5px;
-            font-weight: 600;
-            border-radius: 14px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            z-index: 1;
-            /* Идеальный срез углов, чтобы жидкость не вылазила */
-            -webkit-mask-image: -webkit-radial-gradient(white, black);
-            transform: translateZ(0);
-            transition: color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
-        }
+.flag-wrap img{
+  width:48px;height:48px;
+  object-fit:cover;
+  border-radius:50%;
+}
 
-        /* Тягучая, ленивая волна (2.2 секунды анимации) */
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 104%;
-            left: -2%;
-            width: 104%;
-            height: 185%;
-            background: linear-gradient(0deg, #1d4ed8 0%, #3b82f6 50%, #93c5fd 100%);
-            border-radius: 47% 47% 0 0;
-            transition: transform 2.2s cubic-bezier(0.15, 1, 0.2, 1);
-            z-index: -1;
-        }
+/* Status dot */
+.status-dot{
+  position:absolute;
+  top:14px;right:14px;
+  width:8px;height:8px;
+  border-radius:50%;
+  background:#22c55e;
+  box-shadow:0 0 6px rgba(34,197,94,0.6);
+}
 
-        .btn:hover {
-            color: #ffffff;
-            border-color: #3b82f6;
-            box-shadow: 0 0 16px rgba(59, 130, 246, 0.4);
-        }
+/* Country label */
+.country{
+  font-family:'Unbounded',sans-serif;
+  font-size:11px;
+  font-weight:600;
+  color:var(--text-muted);
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+  margin-bottom:4px;
+}
 
-        .btn:hover::before {
-            transform: translateY(-102%) rotate(1deg);
-        }
+/* Address */
+.address{
+  font-size:12px;
+  color:var(--text-primary);
+  font-weight:600;
+  width:100%;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  margin-bottom:14px;
+}
 
-        .btn-connect {
-            border-color: rgba(59, 130, 246, 0.25);
-            color: #60a5fa;
-        }
+/* Port badge */
+.port-badge{
+  display:inline-flex;align-items:center;gap:3px;
+  background:rgba(59,130,246,0.1);
+  border:1px solid rgba(59,130,246,0.2);
+  border-radius:8px;
+  padding:3px 8px;
+  font-size:11px;
+  color:var(--accent2);
+  font-weight:500;
+  margin-bottom:14px;
+}
 
-        .btn-copy.copied {
-            color: #ffffff;
-            border-color: #10b981;
-            box-shadow: 0 0 16px rgba(16, 185, 129, 0.45);
-        }
-        .btn-copy.copied::before {
-            background: #10b981;
-            transform: translateY(-102%);
-        }
+/* Action buttons */
+.actions{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  width:100%;
+  margin-top:auto;
+}
 
-        /* ПОДВИЖНЫЙ СЛАЙДЕР В МЕНЮ (КАК В WALLET, НО В СТИЛЕ СТЭКЛА) */
-        .bottom-bar {
-            position: fixed;
-            bottom: 24px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 100;
-            width: calc(100% - 32px);
-            max-width: 360px;
-            background: rgba(15, 15, 27, 0.6);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 24px;
-            padding: 6px;
-            display: flex;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-        }
+/* Liquid fill button */
+.btn{
+  position:relative;
+  width:100%;
+  border:1px solid rgba(255,255,255,0.1);
+  outline:none;
+  background:rgba(58,58,58,0.6);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  color:#c0c0c0;
+  padding:10px 0;
+  font-size:12px;
+  font-weight:600;
+  font-family:'DM Sans',sans-serif;
+  border-radius:12px;
+  cursor:pointer;
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;justify-content:center;
+  gap:5px;
+  overflow:hidden;
+  -webkit-mask-image:-webkit-radial-gradient(white,black);
+  transform:translateZ(0);
+  transition:color .4s ease,border-color .4s ease,box-shadow .4s ease;
+  letter-spacing:0.2px;
+}
 
-        .nav-indicator {
-            position: absolute;
-            top: 6px;
-            bottom: 6px;
-            left: 6px;
-            background: rgba(59, 130, 246, 0.15);
-            border: 1px solid rgba(59, 130, 246, 0.3);
-            border-radius: 18px;
-            transition: left 0.45s cubic-bezier(0.2, 1, 0.2, 1), width 0.45s cubic-bezier(0.2, 1, 0.2, 1);
-            z-index: 0;
-            pointer-events: none;
-        }
+.btn svg{
+  width:13px;height:13px;
+  stroke:currentColor;fill:none;
+  stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+  flex-shrink:0;
+  position:relative;z-index:1;
+}
 
-        .bar-btn {
-            flex: 1;
-            background: transparent;
-            border: none;
-            outline: none;
-            padding: 13px 0;
-            font-size: 13px;
-            font-weight: 500;
-            color: #6b7280;
-            border-radius: 18px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: color 0.3s ease;
-            text-decoration: none;
-            z-index: 1;
-        }
+.btn span{position:relative;z-index:1;}
 
-        .bar-btn:hover { color: #ffffff; }
-        .bar-btn.active { color: #3b82f6; font-weight: 600; }
+.btn::before{
+  content:'';
+  position:absolute;
+  top:100%;left:-2%;
+  width:104%;height:180%;
+  background:linear-gradient(0deg,#1d4ed8 0%,#3b82f6 50%,#60a5fa 100%);
+  border-radius:46% 46% 0 0;
+  transition:transform 1.5s cubic-bezier(0.19,1,0.22,1);
+  z-index:0;
+}
 
-        /* МОБИЛЬНАЯ АДАПТАЦИЯ — СТРОГО 2 В РЯД БЕЗ СЛОМОВ ДИЗАЙНА */
-        @media (max-width: 540px) {
-            body { padding-top: 20px; }
-            header h1 { font-size: 26px; }
+.btn:hover{
+  color:#fff;
+  border-color:#3b82f6;
+  box-shadow:0 0 14px rgba(59,130,246,0.35);
+}
 
-            .proxy-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
-            }
-            .proxy-card { padding: 18px 12px; border-radius: 20px; }
-            .flag-box { width: 46px; height: 46px; margin-bottom: 10px; }
-            .address { font-size: 13.5px; margin-bottom: 16px; }
-            .btn { padding: 11px 0; font-size: 11.5px; border-radius: 12px; }
-        }
-    </style>
+.btn:hover::before{
+  transform:translateY(-100%) rotate(2deg);
+}
+
+.btn-connect{
+  border-color:rgba(59,130,246,0.25);
+  color:#60a5fa;
+}
+
+.btn-copy.copied{
+  color:#fff;
+  border-color:#22c55e;
+  box-shadow:0 0 12px rgba(34,197,94,0.35);
+}
+
+.btn-copy.copied::before{
+  background:#16a34a;
+  transform:translateY(-100%);
+}
+
+/* Bottom nav */
+.bottom-bar{
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:100;
+  width:calc(100% - 32px);
+  max-width:340px;
+  background:rgba(33,32,32,0.75);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:22px;
+  padding:5px;
+  display:flex;
+  box-shadow:0 20px 40px rgba(0,0,0,0.5);
+}
+
+.nav-indicator{
+  position:absolute;
+  top:5px;bottom:5px;left:5px;
+  background:rgba(59,130,246,0.14);
+  border:1px solid rgba(59,130,246,0.3);
+  border-radius:17px;
+  transition:left .4s cubic-bezier(.25,1,.5,1),width .4s cubic-bezier(.25,1,.5,1);
+  z-index:0;
+  pointer-events:none;
+}
+
+.bar-btn{
+  flex:1;
+  background:transparent;
+  border:none;outline:none;
+  padding:11px 0;
+  font-size:12px;font-weight:500;
+  font-family:'DM Sans',sans-serif;
+  color:#6b7280;
+  border-radius:17px;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:color .25s;
+  text-decoration:none;
+  z-index:1;
+}
+
+.bar-btn:hover{color:#cbd5e1;}
+.bar-btn.active{color:#60a5fa;font-weight:600;}
+
+/* Mobile */
+@media(max-width:500px){
+  .page{padding:24px 12px 100px;}
+  .header h1{font-size:18px;}
+  .proxy-grid{grid-template-columns:repeat(2,1fr);gap:10px;}
+  .proxy-card{padding:14px 10px 12px;}
+  .flag-wrap{width:50px;height:50px;border-radius:13px;}
+  .flag-wrap img{width:40px;height:40px;}
+  .address{font-size:11px;}
+  .btn{font-size:11px;padding:9px 0;}
+}
+</style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <h1>MTProto Proxies</h1>
-        <p>Premium High-Speed Nodes</p>
-    </header>
-
-    <div class="proxy-grid">
-        <div class="proxy-card">
-            <div class="flag-box">
-                <img src="https://smsbest.io/wp-content/uploads/2023/05/us.svg" alt="USA" class="flag-icon">
-            </div>
-            <div class="address">us1.shadowsocks.wtf</div>
-            <div class="actions">
-                <button class="btn btn-copy" onclick="copyProxy('tg://proxy?server=us1.shadowsocks.wtf&port=443&secret=58bed0d2f51b9aed674ef6e11f32c4a0', this)">Копировать</button>
-                <a href="tg://proxy?server=us1.shadowsocks.wtf&port=443&secret=58bed0d2f51b9aed674ef6e11f32c4a0" class="btn btn-connect">Открыть</a>
-            </div>
-        </div>
-
-        <div class="proxy-card">
-            <div class="flag-box">
-                <img src="https://smsbest.io/wp-content/uploads/2023/05/us.svg" alt="USA" class="flag-icon">
-            </div>
-            <div class="address">us2.shadowsocks.wtf</div>
-            <div class="actions">
-                <button class="btn btn-copy" onclick="copyProxy('tg://proxy?server=us2.shadowsocks.wtf&port=443&secret=e432f13712e802e52d0efce03ebd11ae', this)">Копировать</button>
-                <a href="tg://proxy?server=us2.shadowsocks.wtf&port=443&secret=e432f13712e802e52d0efce03ebd11ae" class="btn btn-connect">Открыть</a>
-            </div>
-        </div>
-
-        <div class="proxy-card">
-            <div class="flag-box">
-                <img src="https://smsbest.io/wp-content/uploads/2023/05/us.svg" alt="USA" class="flag-icon">
-            </div>
-            <div class="address">82.38.63.155</div>
-            <div class="actions">
-                <button class="btn btn-copy" onclick="copyProxy('tg://proxy?server=82.38.63.155&port=8443&secret=ee176ae19c3652267d3ca18fcaf4986fb17777772e676f6f676c652e636f6d', this)">Копировать</button>
-                <a href="tg://proxy?server=82.38.63.155&port=8443&secret=ee176ae19c3652267d3ca18fcaf4986fb17777772e676f6f676c652e636f6d" class="btn btn-connect">Открыть</a>
-            </div>
-        </div>
-
-        <div class="proxy-card">
-            <div class="flag-box">
-                <img src="https://smsbest.io/wp-content/uploads/2023/05/us.svg" alt="USA" class="flag-icon">
-            </div>
-            <div class="address">207.246.89.91</div>
-            <div class="actions">
-                <button class="btn btn-copy" onclick="copyProxy('tg://proxy?server=207.246.89.91&port=443&secret=5975296f739ac1018579428daabbcf2a', this)">Копировать</button>
-                <a href="tg://proxy?server=207.246.89.91&port=443&secret=5975296f739ac1018579428daabbcf2a" class="btn btn-connect">Открыть</a>
-            </div>
-        </div>
+<div class="page">
+  <div class="header">
+        <div class="header-top">
+      <h1>MTProto</h1>
     </div>
+    <p1>Надёжные прокси для Telegram</p1>
+  </div>
+
+  <div class="filters">
+    <div class="filter-pill active">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Все серверы
+      <span class="count-badge">6</span>
+    </div>
+    <div class="filter-pill">
+      <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10A15.3 15.3 0 0 1 8 12a15.3 15.3 0 0 1 4-10z"/></svg>
+      США
+    </div>
+    <div class="filter-pill">
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Онлайн
+    </div>
+  </div>
+
+  <div class="proxy-grid" id="proxyList"></div>
 </div>
 
 <div class="bottom-bar" id="bottomBar">
-    <div class="nav-indicator" id="navIndicator"></div>
-    <button class="bar-btn" onclick="navigateTo('index.html', this)">Главное меню</button>
-    <button class="bar-btn active" id="activeBtn">MTProto</button>
+  <div class="nav-indicator" id="navIndicator"></div>
+  <button class="bar-btn" onclick="navigateTo('https://secret-xyz.github.io/site/index.html',this)">Главное меню</button>
+  <button class="bar-btn active" id="activeBtn">MTProto</button>
 </div>
 
 <script>
-    function copyProxy(text, button) {
-        navigator.clipboard.writeText(text).then(() => {
-            const originalText = button.innerText;
-            button.innerText = 'Скопировано';
-            button.classList.add('copied');
+const proxies = [
+  {server:'us1.shadowsocks.wtf', port:443, secret:'58bed0d2f51b9aed674ef6e11f32c4a0', country:'США', flag:'https://smsbest.io/wp-content/uploads/2023/05/us.svg'},
+  {server:'us2.shadowsocks.wtf', port:443, secret:'e432f13712e802e52d0efce03ebd11ae', country:'США', flag:'https://smsbest.io/wp-content/uploads/2023/05/us.svg'},
+  {server:'82.38.63.155',         port:8443,secret:'ee176ae19c3652267d3ca18fcaf4986fb17777772e676f6f676c652e636f6d', country:'США', flag:'https://smsbest.io/wp-content/uploads/2023/05/us.svg'},
+  {server:'207.246.89.91',        port:443, secret:'5975296f739ac1018579428daabbcf2a', country:'США', flag:'https://smsbest.io/wp-content/uploads/2023/05/us.svg'},
+  {server:'104.168.25.21',        port:5703,secret:'ee000000000000000000000000000000', country:'США', flag:'https://smsbest.io/wp-content/uploads/2023/05/us.svg'},
+  {server:'72.56.236.90',         port:443, secret:'6da8152d859387ca13c4e27af0bd6030', country:'США', flag:'https://smsbest.io/wp-content/uploads/2023/05/us.svg'},
+  {server:'45.76.247.135',        port:443, secret:'6a672ba684fe2ecf5bb4750967a6b2c5', country:'США', flag:'https://smsbest.io/wp-content/uploads/2023/05/us.svg'},
+  {server:'pro.alotaxi.info',     port:4515, secret:'eee9a4f23b1d768c04a8d7f39120ca5b6e626973636f7474692e79656b74616e65742e636f6d', country:'США', flag:'https://smsbest.io/wp-content/uploads/2023/05/us.svg'},
+  {server:'149.28.201.122',       port:443, secret:'ed930143b66896efe4311b17fbfec55f', country:'США', flag:'https://smsbest.io/wp-content/uploads/2023/05/us.svg'},
+  {server:'compassionate-heyrovsky.cfd',       port:1984, secret:'c76b8cb6d99f20a7c1a3ef1b67bbb070', country:'Финляндия', flag:'https://smsbest.io/wp-content/uploads/2023/05/fi.svg'},
+  {server:'s8.dimasssss.space', port:443, secret:'eebe3007e927acd147dde12bee8b1a7c9364726976652e676f6f676c652e636f6d', country:'Финляндия', flag:'https://smsbest.io/wp-content/uploads/2023/05/fi.svg'},
+  {server:'advert.eighty.hot-up.maudlin.puzzle-out.watchpinoyteleserye.com', port:1400, secret:'5d566636017e73e3756a68e00e93ff85', country:'Финляндия', flag:'https://smsbest.io/wp-content/uploads/2023/05/fi.svg'},
+  {server:'love.funstat.info', port:853, secret:'ee26ca1d1b79910d1d2b9a55fb2479f5e6646e732e676f6f676c65', country:'Финляндия', flag:'https://smsbest.io/wp-content/uploads/2023/05/fi.svg'},
+  {server:'aweary.callisection.perspire.playtime.sahib.popochek.com', port:28518, secret:'805832012eb834b6ca3115b4d4f02993', country:'Финляндия', flag:'https://smsbest.io/wp-content/uploads/2023/05/fi.svg'},
+  {server:'llazyrin.duckdns.org', port:8443, secret:'eeb359972f13e568d2e15bc826257028d5676f6f676c652e636f6d', country:'Финляндия', flag:'https://smsbest.io/wp-content/uploads/2023/05/fi.svg'},
+  {server:'compassionate-heyrovsky.cfd', port:1984, secret:'c76b8cb6d99f20a7c1a3ef1b67bbb070', country:'Финляндия', flag:'https://smsbest.io/wp-content/uploads/2023/05/fi.svg'}
+];
 
-            setTimeout(() => {
-                button.innerText = originalText;
-                button.classList.remove('copied');
-            }, 1200);
-        }).catch(err => console.error('Ошибка:', err));
-    }
+function tgLink(p){return `tg://proxy?server=${p.server}&port=${p.port}&secret=${p.secret}`;}
 
-    function updateIndicator(activeEl) {
-        const indicator = document.getElementById('navIndicator');
-        if (activeEl && indicator) {
-            indicator.style.width = activeEl.offsetWidth + 'px';
-            indicator.style.left = activeEl.offsetLeft + 'px';
-        }
-    }
+const list = document.getElementById('proxyList');
+proxies.forEach(p => {
+  const card = document.createElement('div');
+  card.className = 'proxy-card';
+  card.innerHTML = `
+    <div class="status-dot"></div>
+    <div class="flag-wrap">
+      <img src="${p.flag}" alt="${p.country}" onerror="this.style.display='none'">
+    </div>
+    <div class="country">${p.country}</div>
+    <div class="address" title="${p.server}">${p.server}</div>
+    <div class="port-badge">
+      <svg viewBox="0 0 24 24" width="11" height="11" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      :${p.port}
+    </div>
+    <div class="actions">
+      <button class="btn btn-copy" onclick="copyProxy('${tgLink(p)}',this)">
+        <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Копировать</span>
+      </button>
+      <a href="${tgLink(p)}" class="btn btn-connect">
+        <svg viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4 20-7z"/><path d="M22 2 11 13"/></svg>
+        <span>Открыть</span>
+      </a>
+    </div>
+  `;
+  list.appendChild(card);
+});
 
-    window.addEventListener('DOMContentLoaded', () => {
-        updateIndicator(document.getElementById('activeBtn'));
-    });
+function copyProxy(text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    const sp = btn.querySelector('span');
+    const orig = sp.innerText;
+    sp.innerText = 'Скопировано';
+    btn.classList.add('copied');
+    setTimeout(() => { sp.innerText = orig; btn.classList.remove('copied'); }, 1300);
+  }).catch(err => console.error(err));
+}
 
-    window.addEventListener('resize', () => {
-        updateIndicator(document.querySelector('.bar-btn.active'));
-    });
+function updateIndicator(el) {
+  const ind = document.getElementById('navIndicator');
+  if(el && ind){ ind.style.width = el.offsetWidth+'px'; ind.style.left = el.offsetLeft+'px'; }
+}
 
-    function navigateTo(url, btn) {
-        document.querySelectorAll('.bar-btn').forEach(el => el.classList.remove('active'));
-        btn.classList.add('active');
-        updateIndicator(btn);
-        setTimeout(() => { window.location.href = url; }, 450);
-    }
+window.addEventListener('DOMContentLoaded', () => updateIndicator(document.querySelector('.bar-btn.active')));
+window.addEventListener('resize', () => updateIndicator(document.querySelector('.bar-btn.active')));
+
+function navigateTo(url, btn) {
+  document.querySelectorAll('.bar-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateIndicator(btn);
+  setTimeout(() => { window.location.href = url; }, 350);
+}
 </script>
-
 </body>
 </html>
