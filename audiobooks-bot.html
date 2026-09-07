@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Audiobooks — аудиокниги в Telegram</title>
+<style>
+  :root{
+    --bg: #0c0d10;
+    --bg-2: #131418;
+    --surface: rgba(255,255,255,0.045);
+    --surface-hi: rgba(255,255,255,0.09);
+    --border: rgba(255,255,255,0.09);
+    --text: #f2f3f5;
+    --text-dim: #9aa1ab;
+    --text-dimmer: #666c76;
+    --tg-1: #2AABEE;
+    --tg-2: #229ED9;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "SF Pro Text", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  body{
+    min-height: 100vh;
+    position: relative;
+  }
+
+  /* liquid glass background blobs */
+  .blob{
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.35;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .blob-1{
+    width: 480px; height: 480px;
+    background: radial-gradient(circle, var(--tg-1), transparent 70%);
+    top: -180px; left: -140px;
+  }
+  .blob-2{
+    width: 420px; height: 420px;
+    background: radial-gradient(circle, var(--tg-2), transparent 70%);
+    bottom: -160px; right: -120px;
+    opacity: 0.22;
+  }
+  .blob-3{
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, #4fc3f7, transparent 70%);
+    top: 40%; left: 60%;
+    opacity: 0.12;
+  }
+
+  .wrap{
+    position: relative;
+    z-index: 1;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+
+  /* nav */
+  nav{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding: 28px 0 60px;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-weight:600;
+    font-size: 17px;
+    letter-spacing: -0.01em;
+  }
+  .brand-mark{
+    width: 30px; height:30px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, var(--tg-1), var(--tg-2));
+    display:flex; align-items:center; justify-content:center;
+  }
+  .brand-mark svg{ width:16px; height:16px; }
+  .nav-link{
+    color: var(--text-dim);
+    text-decoration:none;
+    font-size: 14px;
+  }
+
+  /* hero */
+  .eyebrow{
+    color: var(--tg-1);
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 18px;
+  }
+  h1{
+    font-size: 44px;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    font-weight: 650;
+    max-width: 560px;
+  }
+  h1 span{
+    background: linear-gradient(100deg, var(--tg-1), #7ee1ff 60%, var(--tg-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .lede{
+    margin-top: 20px;
+    color: var(--text-dim);
+    font-size: 17px;
+    line-height: 1.6;
+    max-width: 480px;
+  }
+
+  .cta-row{
+    display:flex;
+    gap: 12px;
+    margin-top: 32px;
+    flex-wrap: wrap;
+  }
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap: 8px;
+    padding: 13px 22px;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 550;
+    text-decoration:none;
+    transition: transform .15s ease, background .15s ease;
+  }
+  .btn-primary{
+    background: linear-gradient(135deg, var(--tg-1), var(--tg-2));
+    color: #fff;
+  }
+  .btn-primary:hover{ transform: translateY(-1px); }
+  .btn-ghost{
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    backdrop-filter: blur(20px);
+  }
+  .btn-ghost:hover{ background: var(--surface-hi); }
+
+  /* glass card base */
+  .glass{
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    backdrop-filter: blur(24px) saturate(140%);
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+    position: relative;
+  }
+  .glass::before{
+    content:"";
+    position:absolute; inset:0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(160deg, rgba(255,255,255,0.16), rgba(255,255,255,0) 40%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events:none;
+  }
+
+  /* features */
+  .section-label{
+    font-size: 13px;
+    color: var(--text-dimmer);
+    margin: 76px 0 16px;
+  }
+  .features{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .feature{
+    padding: 22px;
+  }
+  .feature-icon{
+    width: 38px; height: 38px;
+    border-radius: 11px;
+    background: rgba(42,171,238,0.12);
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom: 14px;
+  }
+  .feature-icon svg{ width:19px; height:19px; stroke: var(--tg-1); }
+  .feature h3{
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .feature p{
+    font-size: 13.5px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  /* 2.0 announcement */
+  .announce{
+    margin-top: 76px;
+    padding: 36px 32px;
+    background: linear-gradient(150deg, rgba(42,171,238,0.10), rgba(255,255,255,0.03) 60%);
+  }
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    padding: 6px 12px 6px 10px;
+    border-radius: 100px;
+    background: rgba(42,171,238,0.14);
+    border: 1px solid rgba(42,171,238,0.3);
+    font-size: 12.5px;
+    color: #7ee1ff;
+    font-weight: 550;
+    margin-bottom: 18px;
+  }
+  .badge .dot{
+    width: 6px; height:6px;
+    border-radius: 50%;
+    background: #7ee1ff;
+    box-shadow: 0 0 8px #7ee1ff;
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{ opacity: 1; }
+    50%{ opacity: 0.35; }
+  }
+  .announce h2{
+    font-size: 26px;
+    font-weight: 640;
+    letter-spacing: -0.01em;
+    max-width: 460px;
+    line-height: 1.25;
+  }
+  .announce p{
+    margin-top: 14px;
+    color: var(--text-dim);
+    font-size: 15px;
+    line-height: 1.65;
+    max-width: 460px;
+  }
+  .progress-track{
+    margin-top: 26px;
+    height: 6px;
+    border-radius: 100px;
+    background: rgba(255,255,255,0.07);
+    overflow: hidden;
+    max-width: 320px;
+  }
+  .progress-fill{
+    height: 100%;
+    width: 2%;
+    border-radius: 100px;
+    background: linear-gradient(90deg, var(--tg-1), var(--tg-2));
+  }
+  .progress-label{
+    margin-top: 10px;
+    font-size: 12.5px;
+    color: var(--text-dimmer);
+  }
+  .btn-boost{
+    margin-top: 22px;
+    display:inline-flex;
+    align-items:center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 13px;
+    font-size: 14.5px;
+    font-weight: 550;
+    text-decoration:none;
+    color: #7ee1ff;
+    background: rgba(42,171,238,0.10);
+    border: 1px solid rgba(42,171,238,0.28);
+    transition: background .15s ease, transform .15s ease;
+  }
+  .btn-boost:hover{
+    background: rgba(42,171,238,0.18);
+    transform: translateY(-1px);
+  }
+
+  .whatsnew{
+    margin-top: 26px;
+    display:flex;
+    flex-direction:column;
+    gap: 10px;
+  }
+  .whatsnew-item{
+    display:flex;
+    align-items:flex-start;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--text-dim);
+  }
+  .whatsnew-item svg{
+    width:15px; height:15px;
+    stroke: var(--tg-1);
+    flex-shrink:0;
+    margin-top: 3px;
+  }
+
+  footer{
+    margin-top: 90px;
+    padding-top: 26px;
+    border-top: 1px solid var(--border);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    color: var(--text-dimmer);
+    font-size: 13px;
+  }
+
+  @media (max-width: 560px){
+    h1{ font-size: 32px; }
+    .features{ grid-template-columns: 1fr; }
+    .announce{ padding: 28px 22px; }
+    footer{ flex-direction:column; gap:10px; align-items:flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
+
+<div class="wrap">
+
+  <nav>
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3a9 9 0 0 0-9 9v5a2 2 0 0 0 2 2h1a1 1 0 0 0 1-1v-5a1 1 0 0 0-1-1H5a7 7 0 0 1 14 0h-1a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h1a2 2 0 0 0 2-2v-5a9 9 0 0 0-9-9z"/>
+        </svg>
+      </div>
+      Audiobooks
+    </div>
+    <a class="nav-link" href="https://t.me/AudioBooksAppBot" target="_blank">t.me/AudioBooksAppBot</a>
+  </nav>
+
+  <div class="eyebrow">Аудиокниги прямо в Telegram</div>
+  <h1>Слушай книги, <span>не выходя из чата</span></h1>
+  <p class="lede">Бот с библиотекой аудиокниг: включай на паузе, продолжай с того же места и находи новое за пару секунд — без сторонних приложений.</p>
+
+  <div class="cta-row">
+    <a class="btn btn-primary" href="https://t.me/AudioBooksAppBot" target="_blank">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="#fff"><path d="M22 2 2 9.5l7 3 2 7 3-4 5 4z"/></svg>
+      Открыть бота
+    </a>
+    <a class="btn btn-ghost" href="#announce">О версии 2.0</a>
+  </div>
+
+  <div class="section-label">Что уже есть сейчас</div>
+  <div class="features">
+    <div class="glass feature">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V6a2 2 0 0 1 2-2h13v15"/><path d="M4 19a2 2 0 0 0 2 2h13"/><path d="M4 19a2 2 0 0 1 2-2h13"/></svg>
+      </div>
+      <h3>Большая библиотека</h3>
+      <p>Сотни аудиокниг разных жанров — от бизнеса до фантастики.</p>
+    </div>
+    <div class="glass feature">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+      </div>
+      <h3>Продолжение с паузы</h3>
+      <p>Бот запоминает место — можно закрыть чат и вернуться позже.</p>
+    </div>
+    <div class="glass feature">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4v16h16v-7"/><path d="M14 4h6v6"/><path d="M20 4l-9 9"/></svg>
+      </div>
+      <h3>Быстрый поиск</h3>
+      <p>Название или автор — и книга готова к прослушиванию.</p>
+    </div>
+    <div class="glass feature">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      </div>
+      <h3>Свои плейлисты</h3>
+      <p>Сохраняй книги в подборки и слушай в удобном порядке.</p>
+    </div>
+  </div>
+
+  <div class="glass announce" id="announce">
+    <div class="badge"><span class="dot"></span>В разработке</div>
+    <h2>Мы делаем новую версию бота — 2.0</h2>
+    <p>Полностью обновлённый интерфейс, личный кабинет со статистикой прослушивания, персональные рекомендации и более быстрая навигация по библиотеке.</p>
+
+    <div class="whatsnew">
+      <div class="whatsnew-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        Новый дизайн меню и карточек книг
+      </div>
+      <div class="whatsnew-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        Личный кабинет с историей и прогрессом
+      </div>
+      <div class="whatsnew-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        Рекомендации на основе того, что уже слушал
+      </div>
+    </div>
+
+    <div class="progress-track"><div class="progress-fill"></div></div>
+    <div class="progress-label">Готовность 2.0 — 2%, работа только началась</div>
+
+    <a class="btn-boost" href="http://t.me/send?start=IV2pSripwBFb" target="_blank">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7ee1ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 11-14h-7l1-8z"/></svg>
+      Ускорить обновление
+    </a>
+  </div>
+
+  <footer>
+    <span>Audiobooks · Telegram-бот</span>
+    <span>2.0 на подходе</span>
+  </footer>
+
+</div>
+
+</body>
+</html>
