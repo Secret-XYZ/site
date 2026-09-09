@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nice VPN — пробный период</title>
+<style>
+  :root {
+    --bg: #181818;
+    --panel: #202020;
+    --panel-2: #262626;
+    --border: #333333;
+    --text: #eaeaea;
+    --text-dim: #949494;
+    --tg-blue: #30a3e6;
+    --tg-blue-2: #2488c4;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 40px 20px;
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 15% 0%, rgba(48,163,230,0.08), transparent 40%),
+      radial-gradient(circle at 85% 100%, rgba(36,136,196,0.06), transparent 40%);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 480px;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .logo {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--tg-blue), var(--tg-blue-2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 16px rgba(48,163,230,0.35);
+    font-size: 22px;
+  }
+
+  .header h1 {
+    font-size: 19px;
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .header p {
+    margin: 2px 0 0;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  .steps {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 6px;
+    margin-bottom: 20px;
+  }
+
+  .step {
+    display: flex;
+    gap: 14px;
+    padding: 16px 14px;
+  }
+
+  .step + .step {
+    border-top: 1px solid var(--border);
+  }
+
+  .step-num {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--tg-blue);
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .step-text {
+    font-size: 14.5px;
+    line-height: 1.5;
+    padding-top: 3px;
+  }
+
+  .step-text b {
+    color: #fff;
+    font-weight: 600;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2px 9px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+  }
+
+  .note {
+    margin-top: 22px;
+    padding: 12px 14px;
+    background: rgba(48,163,230,0.07);
+    border: 1px solid rgba(48,163,230,0.2);
+    border-radius: 12px;
+    font-size: 12.5px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  .note b { color: var(--tg-blue); }
+</style>
+</head>
+<body>
+
+<div class="card">
+
+  <div class="header">
+    <div class="logo">🎁</div>
+    <div>
+      <h1>Nice VPN</h1>
+      <p>Активация пробного периода</p>
+    </div>
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text">
+        Открываем бота и переходим в раздел <span class="pill">🎁 Подарки</span>.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text">
+        Нажимаем кнопку <span class="pill">🎯 Активировать пробный период</span>.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text">
+        Доступ открывается <b>автоматически</b> — подписка готова к использованию.
+      </div>
+    </div>
+  </div>
+
+  <div class="note">
+    Пробный период даётся <b>один раз</b> на аккаунт. После активации ссылку на подписку можно найти в соответствующем разделе бота.
+  </div>
+
+</div>
+
+</body>
+</html>
